@@ -1,15 +1,17 @@
 import request from '@/utils/request'
 
-export function getLessons() {
+export function getLessons(data) {
+  console.log({ data });
   return request({
-    url: '/lesson/list',
-    method: 'get'
+    url: '/cabinet/sections/topiclist',
+    method: 'post',
+    data
   })
 }
 
 export function deleteLesson(data) {
   return request({
-    url: '/lesson/delete',
+    url: '/cabinet/sections/topicdelete',
     method: 'post',
     data
   })
@@ -18,7 +20,7 @@ export function deleteLesson(data) {
 
 export function addLesson(data) {
   return request({
-    url: '/lesson/add',
+    url: '/cabinet/sections/topicadd',
     method: 'post',
     data
   })

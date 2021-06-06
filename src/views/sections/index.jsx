@@ -15,9 +15,9 @@ function Sections(props){
     },
     {
       title: 'Тақырыптар',
-      dataIndex: 'lesson',
-      key: 'lesson',
-      render: id=>{
+      dataIndex: 'id',
+      key: 'id',
+      render: (id) => {
         return(
           <Link to={`/lessons/${id}`}><Button type="primary" icon="right" title="өту" /></Link>
         )
@@ -25,13 +25,13 @@ function Sections(props){
     },
     {
       title: 'БЖБ',
-      key: 'test',
-      dataIndex: 'test',
-      render: test => {
-        let color = test === true ? 'green' : 'geekblue';
+      key: 'examId',
+      dataIndex: 'examId',
+      render: examId => {
+        let color = examId > 0 ? 'green' : 'geekblue';
         return (
-          <Tag color={color} key={test}>
-            {test === true ? 'БЖБ құрастырылған' : 'БЖБ құрастырылмаған'}
+          <Tag color={color} key={examId}>
+            {examId > 0 ? 'БЖБ құрастырылған' : 'БЖБ құрастырылмаған'}
           </Tag>
         );
       }
@@ -39,49 +39,25 @@ function Sections(props){
     {
       title: 'Өшіру',
       key: 'key',
-      render: (record) => {
+      dataIndex: 'id',
+      render: (id) => {
       return(
-          <Button type="primary" shape="circle" icon="delete" title="Өшіру" onClick={handleDelete.bind(null,record.key)}/>
+          <Button type="primary" shape="circle" icon="delete" title="Өшіру" onClick={handleDelete.bind(null,id)}/>
       )},
     },
   ];
   const [loading, setLoading] = useState(true);
-
-  const [sections,setSections]= useState([]);
-
-  const [addUserModalVisible,setAddUserModalVisible] = useState(false);
-  
-  const [addUserModalLoading,setAddUserModalLoading] = useState(false);
-  
-  const formRef = useRef(null);
-
-  const getSectionsList = async () => {
-    const result = await getSections()
-    const { data, status } = result.data;
-      if (status === 0) {
-        setLoading(false);
-        setSections(data);
-      }
-  }
-
-  const handleDelete = (key) => {
-    deleteSection({key}).then(result => {
-      const {status} = result.data;
-      if(status === 0){
-        message.success("Сәтті өшірілді")
-        getSectionsList();
-      }
-      
-    })
-  }  
+  const [sections, setSections]= useState([]);
+  const [addUserModalVisible, setAddUserModalVisible] = useState(false);
+  const [addUserModalLoading, setAddUserModalLoading] = useState(false);
   const handleCancel = _ => {
     setAddUserModalVisible(false);
   };
-  const handleAddUser = (row) => {
+  const handleAddSection = (row) => {
     setAddUserModalVisible(true);
-   
   };
-  const handleAddUserOk = _ => {
+  const handleAddSectionOk = _ => {
+    const { match } = props;
    
     let form = formRef.current.form;
 
@@ -90,7 +66,10 @@ function Sections(props){
         return;
       }
       setAddUserModalLoading(true);
-      addSection(values).then((response)=>{
+      addSection({
+        ...values,
+        subjectId: match.params.class
+      }).then((response)=>{
         form.resetFields();
         setAddUserModalVisible(false);
         setAddUserModalLoading(false);
@@ -102,6 +81,28 @@ function Sections(props){
       
     });
   };
+  const formRef = useRef(null);
+
+  const getSectionsList = async () => {
+    const { match } = props;
+    const result = await getSections({ subjectsId: match.params.class })
+    const { data, status } = result;
+      if ((status === 200) && data) {
+        setLoading(false);
+        setSections(data.sections);
+      }
+  }
+
+  const handleDelete = (sectionId) => {
+    deleteSection({sectionId}).then(result => {
+      const { status, data } = result;
+      if(status === 200 && data && data.type === "ok") {
+        message.success("Сәтті өшірілді")
+        getSectionsList();
+      }
+      
+    })
+  }  
   useEffect(() => {
     getSectionsList();
   },[]);
@@ -109,16 +110,18 @@ function Sections(props){
     <DocumentTitle title={"Информатика 1 сынап бөлімдер"}>
       <Spin spinning={loading} tip="жүктеу...">
         <div className="sections-list-container">
-        <Button type='primary' onClick={handleAddUser}>Бөлім қосу</Button>
+        <Button type='primary' onClick={handleAddSection}>Бөлім қосу</Button>
           {
-            sections.length > 0 ? <Table columns={columns} dataSource={sections} /> : false
+            sections && sections.length !== 0 ? (
+              <Table columns={columns} rowKey="id" dataSource={sections} />
+            ) : null
           }
           <AddSectionForm
             wrappedComponentRef={formRef}
             visible={addUserModalVisible}
             confirmLoading={addUserModalLoading}
             onCancel={handleCancel}
-            onOk={handleAddUserOk}
+            onOk={handleAddSectionOk}
           />  
         </div>
         

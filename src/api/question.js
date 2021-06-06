@@ -1,15 +1,16 @@
 import request from '@/utils/request'
 
-export function getQuestions() {
+export function getQuestions(data) {
   return request({
-    url: '/question/list',
-    method: 'get'
+    url: '/cabinet/exam/question-list',
+    method: 'post',
+    data
   })
 }
 
 export function deleteQuestion(data) {
   return request({
-    url: '/question/delete',
+    url: '/cabinet/exam/question-delete',
     method: 'post',
     data
   })
@@ -18,7 +19,7 @@ export function deleteQuestion(data) {
 
 export function addQuestion(data) {
   return request({
-    url: '/question/add',
+    url: '/cabinet/exam/question-add',
     method: 'post',
     data
   })

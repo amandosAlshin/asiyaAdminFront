@@ -1,12 +1,16 @@
-import React, { useImperativeHandle } from "react";
+import React, { useImperativeHandle, useState, useEffect } from "react";
 import { Form, Input, Select, Modal} from "antd";
+import { getClassesAll } from "@/api/classes";
+import { getSections } from "@/api/section";
 const { Option } = Select;
 const AddExamForm = Form.create({
   name: "addExamForm"
 })(
 React.forwardRef((props, ref) => {
-  const { visible, onCancel, onOk, form, onChangeClass, confirmLoading, onChangeSection } = props;
+  const { visible, onCancel, onOk, form, confirmLoading  } = props;
   const { getFieldDecorator } = form;
+  const [classes, setClasses] = useState([]);
+  const [sections, setSections] = useState([]);
 
   useImperativeHandle(ref, () => ({
     form
@@ -19,6 +23,37 @@ React.forwardRef((props, ref) => {
       sm: { span: 16 },
     },
   };
+
+  const getClassesList = async () => {
+    const result = await getClassesAll()
+    const { data, status } = result;
+    if (status === 200 && data && data.classes) {
+      setClasses(data.classes);
+    }
+  }
+
+  const getSectionList = async (values) => {
+    const result = await getSections(values)
+    const { data, status } = result;
+    console.log({ result });
+    if (status === 200 && data && data.sections) {
+      setSections(data.sections);
+    }
+  }
+
+  const onChangeClass = (value) => {
+    form.setFieldsValue({ classId : value });
+    form.setFieldsValue({ sectionId: null });
+    getSectionList({ subjectsId: value });
+  }
+
+  const onChangeSection = (value) => {
+    form.setFieldsValue({ sectionId : value });
+  }
+
+  useEffect(() => {
+    getClassesList()
+  }, [])
   
   return (
     <Modal
@@ -34,47 +69,65 @@ React.forwardRef((props, ref) => {
       <Form {...formItemLayout}>
         <Form.Item label="Аты:">
           {getFieldDecorator("name", {
-            rules: [{ required: true }],
+            rules: [{
+              message: 'Атын енгізіңіз',
+              required: true
+            }]
           })(<Input placeholder="бөлім аты" />)}
         </Form.Item>
         <Form.Item label="Сынып:">
-        {getFieldDecorator("className", {
-            rules: [{ required: true }],
+        {getFieldDecorator("subjectId", {
+            rules: [{
+              message: 'Сынып таңдаңыз',
+              required: true
+            }]
           })(
           <Select
             placeholder="Сыныпты таңдаңыз"
-            optionFilterProp="children"
+            // optionFilterProp="children"
             onChange={onChangeClass}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
+            // filterOption={(input, option) =>
+            //   option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            // }
           >
-            <Option value="1 сынып Информатика">1 сынып Информатика</Option>
-            <Option value="2 сынып АТЖ">2 сынып АТЖ</Option>
-            <Option value="4 сынып Информатика">4 сынып Информатика</Option>
+            {
+              classes && 
+                classes.map(function(item){
+                  return <Option key={item.id}>{item.name} {item.name}</Option>
+                })
+            }
           </Select>)}
         </Form.Item>
         <Form.Item label="Бөлім:">
-        {getFieldDecorator("sectionName", {
-            rules: [{ required: true }],
+        {getFieldDecorator("sectionId", {
+            rules: [{
+              required: true,
+              message: 'Бөлім таңдаңыз'
+            }],
           })(
           <Select
             placeholder="Бөлім таңдаңыз"
-            optionFilterProp="children"
+            // optionFilterProp="children"
             onChange={onChangeSection}
-            filterOption={(input, option) =>
-              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-            }
+            // filterOption={(input, option) =>
+            //   option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            // }
           >
-            <Option value="Компьютер мен желілердің техникалық сипаттамалары">Компьютер мен желілердің техникалық сипаттамалары</Option>
-            <Option value="Компьютер мен желілердің техникалық сипаттамалары 2">Компьютер мен желілердің техникалық сипаттамалары 2</Option>
-            <Option value="Компьютер мен желілердің техникалық сипаттамалары 3">Компьютер мен желілердің техникалық сипаттамалары 3</Option>
+            {
+              sections && 
+                sections.map(function(item){
+                  return <Option key={item.id}>{item.name} {item.name}</Option>
+                })
+            }
           </Select>)}
         </Form.Item>
         <Form.Item label="Уақыт:">
           {getFieldDecorator("time", {
-            rules: [{ required: true }],
-          })(<Input placeholder="оқушыға берілетін уақыт (мин.)" />)}
+            rules: [{
+              message: 'Уақыт енгізіңіз',
+              required: true
+            }],
+          })(<Input type="number" placeholder="оқушыға берілетін уақыт (мин.)" />)}
         </Form.Item>
       </Form>
     </Modal>

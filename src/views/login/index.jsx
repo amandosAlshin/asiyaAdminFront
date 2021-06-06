@@ -12,15 +12,16 @@ const Login = (props) => {
 
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (username, password) => {
+  const handleLogin = (email, password) => {
     setLoading(true);
-    login(username, password)
+    login(email, password)
       .then((data) => {
         message.success("Жүйеге ену сәтті аяталды!");
         handleUserInfo(data.token);
       })
       .catch((error) => {
         setLoading(false);
+        console.log({ error });
         message.error(error);
       });
   };
@@ -36,8 +37,8 @@ const Login = (props) => {
     event.preventDefault();
     form.validateFields((err, values) => {
       if (!err) {
-        const { username, password } = values;
-        handleLogin(username, password);
+        const { email, password } = values;
+        handleLogin(email, password);
       } else {
         console.log("Жүйеге ену қате!");
       }
@@ -56,12 +57,12 @@ const Login = (props) => {
           </div>
           <Spin spinning={loading} tip="жүктеу...">
             <Form.Item>
-              {getFieldDecorator("username", {
+              {getFieldDecorator("email", {
                 rules: [
                   {
                     required: true,
-                    whitespace: true,
-                    message: "логин ді толтырыңыз",
+                    type: "email",
+                    message: "Email дұрыс емес",
                   },
                 ],
               })(
@@ -69,7 +70,7 @@ const Login = (props) => {
                   prefix={
                     <Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />
                   }
-                  placeholder="Логин"
+                  placeholder="Email"
                 />
               )}
             </Form.Item>

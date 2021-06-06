@@ -5,6 +5,8 @@ import { getLessons, deleteLesson, addLesson } from "@/api/lesson";
 import AddLessonForm from "./forms/add-lesson-form"
 import "./index.less";
 
+const apiUrl = process.env.REACT_APP_BASE_API;
+
 function Lessons(props){
   console.log(props.match.params.section);
   const columns = [
@@ -15,11 +17,11 @@ function Lessons(props){
     },
     {
       title: 'Файл',
-      dataIndex: 'fail',
-      key: 'fail',
-      render: file=>{
+      dataIndex: 'file',
+      key: 'file',
+      render: file => {
         return(
-          <a target="_blank" rel="noopener noreferrer" download href='https://cdn.cliqueinc.com/posts/219559/italian-fashion-girl-wardrobe-219559-1508970166637-main.700x0c.jpg'>
+          <a target="_blank" rel="noopener noreferrer" download href={`${apiUrl}${file}`}>
             <Button download type="primary" icon="down" title="Файлды алу" />
           </a>
         )
@@ -27,9 +29,9 @@ function Lessons(props){
     },
     {
       title: 'Өшіру',
-      dataIndex: 'key',
+      dataIndex: 'id',
       key: 'key',
-      render: id=>{
+      render: id => {
         return(
           <Button type="primary" icon="delete" title="өту" onClick={handleDelete.bind(null,id)}/>
         )
@@ -37,28 +39,28 @@ function Lessons(props){
     },
   ];
   const [loading, setLoading] = useState(true);
-
   const [lessons,setLessons]= useState([]);
-
   const [addLessonModalVisible,setAddLessonModalVisible] = useState(false);
-  
   const [addLessonModalLoading,setAddLessonModalLoading] = useState(false);
+  const [fileUrl, setFileUrl] = useState();
   
   const formRef = useRef(null);
 
   const getLessonsList = async () => {
-    const result = await getLessons()
-    const { data, status } = result.data;
-      if (status === 0) {
+    const { match } = props;
+    console.log({ match });
+    const result = await getLessons({ sectionId: match.params.section })
+    const { data, status } = result;
+      if (status === 200 && data) {
         setLoading(false);
-        setLessons(data);
+        setLessons(data.topics);
       }
   }
 
-  const handleDelete = (key) => {
-    deleteLesson({key}).then(result => {
-      const {status} = result.data;
-      if(status === 0){
+  const handleDelete = (topicId) => {
+    deleteLesson({ topicId  }).then(result => {
+      const { status, data } = result;
+      if(status === 200 && data && data.type === 'ok') {
         message.success("Сәтті өшірілді")
         getLessonsList();
       }
@@ -80,8 +82,16 @@ function Lessons(props){
       if (err) {
         return;
       }
+      if (!fileUrl) {
+        message.error("Сіз файл таңдамадыңыз!");
+      }
       setAddLessonModalLoading(true);
-      addLesson(values).then((response)=>{
+      const body = {
+        file: fileUrl,
+        sectionId: props.match.params.section,
+        name: values.name,
+      }
+      addLesson(body).then((response)=>{
         form.resetFields();
         setAddLessonModalVisible(false);
         setAddLessonModalLoading(false);
@@ -95,16 +105,18 @@ function Lessons(props){
   };
   const draggerProps = () => {
     return {
-      name: 'file',
+      name: 'sampleFile',
       multiple: false,
-      action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
+      action: `${apiUrl}api/upload/topicfile`,
       onChange(info) {
         const { status } = info.file;
         if (status !== 'uploading') {
           console.log(info.file, info.fileList);
         }
         if (status === 'done') {
+          console.log({ info });
           message.success(`${info.file.name} Файл сәтті жүктелді.`);
+          setFileUrl(info.file.response.path);
         } else if (status === 'error') {
           message.error(`${info.file.name} Файлды жүктеу кезінде сәтсіздік орын алды.`);
         }

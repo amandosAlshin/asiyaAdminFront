@@ -2,14 +2,14 @@ import request from '@/utils/request'
 
 export function getExams() {
   return request({
-    url: '/exam/list',
-    method: 'get'
+    url: '/cabinet/exam/exam-list',
+    method: 'post'
   })
 }
 
 export function deleteExam(data) {
   return request({
-    url: '/exam/delete',
+    url: '/cabinet/exam/exam-delete',
     method: 'post',
     data
   })
@@ -18,7 +18,7 @@ export function deleteExam(data) {
 
 export function addExam(data) {
   return request({
-    url: '/exam/add',
+    url: '/cabinet/exam/exam-add',
     method: 'post',
     data
   })

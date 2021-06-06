@@ -4,7 +4,7 @@ const AddQuestionForm = Form.create({
   name: "addQuestionForm"
 })(
 React.forwardRef((props, ref) => {
-  const { onChangeType,visible,onCancel, onOk, form, confirmLoading } = props;
+  const { visible, onCancel, onOk, form, confirmLoading } = props;
   const { getFieldDecorator } = form;
 
   useImperativeHandle(ref, () => ({
@@ -17,6 +17,10 @@ React.forwardRef((props, ref) => {
     wrapperCol: {
       sm: { span: 10 },
     },
+  };
+
+  const onChangeType = e => {
+    form.setFieldsValue({ type: e.target.value });
   };
   
   return (
@@ -36,17 +40,17 @@ React.forwardRef((props, ref) => {
           })(<Input placeholder="сұрақ" />)}
         </Form.Item>
         <Form.Item label="Дескриптор:">
-          {getFieldDecorator("discp", {
+          {getFieldDecorator("description", {
             rules: [{ required: true }],
           })(<Input placeholder="дескриптор" />)}
         </Form.Item>
         <Form.Item label="Балл:">
           {getFieldDecorator("amount", {
             rules: [{ required: true }],
-          })(<Input placeholder="балл" />)}
+          })(<Input type="number" placeholder="балл" />)}
         </Form.Item>
         <Form.Item label="Бағалау критериясы:">
-          {getFieldDecorator("criterion", {
+          {getFieldDecorator("measure", {
             rules: [{ required: true }],
           })(<Input placeholder="бағалау критериясы" />)}
         </Form.Item>

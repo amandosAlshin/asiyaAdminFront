@@ -24,7 +24,9 @@ const LayoutHeader = (props) => {
       okText: "иә",
       cancelText: "жоқ",
       onOk: () => {
-        logout(token);
+        document.cookie = 'Token=;';
+        window.location.reload();
+        // logout(token);
       },
     });
   };
@@ -78,7 +80,7 @@ const LayoutHeader = (props) => {
           <div className="dropdown-wrap">
             <Dropdown overlay={menu}>
               <div>
-                Admin
+                { props.name }
                 <Icon style={{ color: "rgba(0,0,0,.3)" }} type="caret-down" />
               </div>
             </Dropdown>

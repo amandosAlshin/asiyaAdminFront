@@ -14,7 +14,8 @@ const service = axios.create({
 service.interceptors.request.use(
   (config) => {
     if (store.getState().user.token) {
-      config.headers.Authorization = getToken();
+      config.headers.Authorization = `Bearer ${getToken()}`;
+      // config.headers.ContentType = 'application/json'
     }
     return config;
   },
@@ -29,7 +30,7 @@ service.interceptors.response.use(
   (response) => response,
   (error) => {
     console.log("err" + error); // for debug
-    const { status } = error.response;
+    const status = error && error.response && error.response.status;
     if (status === 403) {
       Modal.confirm({
         title: "Жүйеден шығу керек?",

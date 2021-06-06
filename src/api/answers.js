@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getAnswers(data) {
   return request({
-    url: '/answer/list',
+    url: '/cabinet/exam/answers-list',
     method: 'post',
     data
   })
@@ -19,7 +19,7 @@ export function deleteAnswer(data) {
 
 export function addAnswer(data) {
   return request({
-    url: '/answer/add',
+    url: '/cabinet/exam/answers-add',
     method: 'post',
     data
   })

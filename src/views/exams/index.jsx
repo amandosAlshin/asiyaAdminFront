@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import DocumentTitle from "react-document-title";
 import { Spin,Table, Button,message } from "antd";
 import { getExams, deleteExam, addExam } from "@/api/exam";
-import AddExamForm from "./forms/add-exam-form"
+import AddExamModal from './modals/AddExamModal';
 import "./index.less";
 
 function Exams(props){
@@ -15,18 +15,22 @@ function Exams(props){
     },
     {
       title: 'Бөлім',
-      dataIndex: 'sectionName',
-      key: 'sectionName',
+      dataIndex: 'sName',
+      key: 'sectionName'
     },
     {
       title: 'Сынып',
-      dataIndex: 'className',
+      dataIndex: 'cName',
       key: 'className',
     },
     {
       title: 'Құрастырылған күн',
-      dataIndex: 'dateCreate',
-      key: 'dateCreate',
+      dataIndex: 'dateCreated',
+      key: 'dateCreated',
+      render: dateCreated => {
+        const date = new Date(dateCreated);
+        return <span>{((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + date.getFullYear()}</span>
+      }
     },
     {
       title: 'Уақыты',
@@ -35,11 +39,12 @@ function Exams(props){
     },
     {
       title: 'Сұрақтар',
-      dataIndex: 'qCount',
+      // dataIndex: 'qCount',
       key: 'qCount',
-      render: id=>{
+      render: row => {
+        console.log({ row });
         return(
-          <Link to={`/questions/${id}`}><Button type="primary" icon="right" title="өту" /></Link>
+          <Link to={`/questions/${row.id}`}><Button type="primary" icon="right" title="өту" />{row.qCount}</Link>
         )
       }
     },
@@ -65,11 +70,11 @@ function Exams(props){
     },
     {
       title: 'Өшіру',
-      dataIndex: 'key',
+      dataIndex: 'id',
       key: 'key',
       render: id=>{
         return(
-          <Button type="primary" icon="delete" title="өту" onClick={handleDelete.bind(null,id)}/>
+          <Button type="danger" icon="delete" title="өту" onClick={handleDelete.bind(null,id)}/>
         )
       }
     },
@@ -78,68 +83,39 @@ function Exams(props){
 
   const [exams,setExams]= useState([]);
 
-  const [addExamModalVisible,setAddExamModalVisible] = useState(false);
-  
-  const [addExamModalLoading,setAddExamModalLoading] = useState(false);
-  
-  const formRef = useRef(null);
-
   const getExamsList = async () => {
     const result = await getExams()
-    const { data, status } = result.data;
-      if (status === 0) {
-        setLoading(false);
-        setExams(data);
-      }
+    const { data, status } = result;
+    if (status === 200 && data && data.exams) {
+      setLoading(false);
+      setExams(data.exams);
+    } else {
+
+    }
   }
 
-  const handleDelete = (key) => {
-    deleteExam({key}).then(result => {
-      const {status} = result.data;
-      if(status === 0){
+  const handleDelete = (examId) => {
+    deleteExam({ examId }).then(result => {
+      const { status } = result;
+      if(status === 200){
         message.success("Сәтті өшірілді")
         getExamsList();
       }
       
     })
-  }  
-  const handleCancel = _ => {
-    setAddExamModalVisible(false);
-  };
-  const handleAddLesson = (row) => {
-    setAddExamModalVisible(true);
-   
-  };
-  const handleAddLessonOk = _ => {
-   
-    let form = formRef.current.form;
-
-    form.validateFields((err, values) => {
-      if (err) {
-        return;
-      }
-      setAddExamModalLoading(true);
-      addExam(values).then((response)=>{
-        form.resetFields();
-        setAddExamModalVisible(false);
-        setAddExamModalLoading(false);
-        message.success("БЖБ сәтті қосылды!");
-        getExamsList();
-      }).catch(e=>{
-        message.success("Сәтсіздік қайталап көріңіз!");
-      });  
-      
-    });
-  };
-
-  const onChangeClass = _ => {
-    let form = formRef.current.form;
-    form.setFieldsValue({ className: 1 });
   }
-  const onChangeSection = _ => {
-    let form = formRef.current.form;
-    form.setFieldsValue({ sectionName: 1 });
+  const handleAddExamOk = () => {
+    getExamsList();
   }
+
+  // const onChangeClass = _ => {
+  //   let form = formRef.current.form;
+  //   form.setFieldsValue({ className: 1 });
+  // }
+  // const onChangeSection = _ => {
+  //   let form = formRef.current.form;
+  //   form.setFieldsValue({ sectionName: 1 });
+  // }
   useEffect(() => {
     getExamsList();
   },[]);
@@ -147,19 +123,13 @@ function Exams(props){
     <DocumentTitle title={"БЖБ"}>
       <Spin spinning={loading} tip="жүктеу...">
         <div className="sections-list-container">
-        <Button type='primary' onClick={handleAddLesson}>БЖБ қосу</Button>
+        <div class="btn-actions">
+          <AddExamModal onOk={handleAddExamOk} />
+        </div>
           {
-            exams.length > 0 ? <Table columns={columns} dataSource={exams} /> : false
+            exams.length > 0 ? <Table rowKey="id" columns={columns} dataSource={exams} /> : false
           }
-          <AddExamForm
-            onChangeSection = {onChangeSection}
-            onChangeClass = {onChangeClass}
-            wrappedComponentRef={formRef}
-            visible={addExamModalVisible}
-            confirmLoading={addExamModalLoading}
-            onCancel={handleCancel}
-            onOk={handleAddLessonOk}
-          />  
+          
         </div>
       </Spin>
     </DocumentTitle>

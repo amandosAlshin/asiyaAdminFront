@@ -1,15 +1,16 @@
 import request from '@/utils/request'
 
-export function getSections() {
+export function getSections(data) {
   return request({
-    url: '/section/list',
-    method: 'get'
+    url: '/cabinet/sections/sectionlist',
+    method: 'post',
+    data
   })
 }
 
 export function deleteSection(data) {
   return request({
-    url: '/section/delete',
+    url: '/cabinet/sections/sectiondelete',
     method: 'post',
     data
   })
@@ -18,7 +19,7 @@ export function deleteSection(data) {
 
 export function addSection(data) {
   return request({
-    url: '/section/add',
+    url: '/cabinet/sections/sectionadd',
     method: 'post',
     data
   })

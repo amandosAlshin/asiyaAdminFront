@@ -2,8 +2,15 @@ import request from '@/utils/request'
 
 export function getClasses() {
   return request({
-    url: '/classes/list',
-    method: 'get'
+    url: '/cabinet/subjects/listsub',
+    method: 'post'
+  })
+}
+
+export function getClassesAll() {
+  return request({
+    url: '/cabinet/subjects/listclasses',
+    method: 'post',
   })
 }
 
@@ -18,7 +25,7 @@ export function deleteClass(data) {
 
 export function addClass(data) {
   return request({
-    url: '/class/add',
+    url: '/cabinet/subjects/addclass',
     method: 'post',
     data
   })
