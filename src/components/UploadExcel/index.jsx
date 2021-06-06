@@ -91,7 +91,7 @@ class UploadExcel extends Component {
             <Icon type="inbox" />
           </p>
           <p className="ant-upload-text">
-            Click or drag file to this area to upload
+            Файлды жүктеу үшін басыңыз немесе файлды әкеліңіз!
           </p>
         </Dragger>
       </div>

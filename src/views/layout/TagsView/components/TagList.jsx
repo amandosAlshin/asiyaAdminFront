@@ -89,7 +89,7 @@ class TagList extends Component {
   }
   handleCloseAllTags = () => {
     this.props.emptyTaglist();
-    this.props.history.push("/dashboard");
+    this.props.history.push("/classes");
     this.closeContextMenu();
   };
   handleCloseOtherTags = () => {
@@ -122,7 +122,7 @@ class TagList extends Component {
               <li key={tag.path}>
                 <Tag
                   onClose={this.handleClose.bind(null, tag)}
-                  closable={tag.path !== "/dashboard"}
+                  closable={tag.path !== "/classes"}
                   color={currentPath === tag.path ? "geekblue" : "gold"}
                   onClick={this.handleClick.bind(null, tag.path)}
                   onContextMenu={this.openContextMenu.bind(null, tag)}

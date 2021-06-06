@@ -13,11 +13,10 @@ const Login = (props) => {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = (username, password) => {
-    // 登录完成后 发送请求 调用接口获取用户信息
     setLoading(true);
     login(username, password)
       .then((data) => {
-        message.success("登录成功");
+        message.success("Жүйеге ену сәтті аяталды!");
         handleUserInfo(data.token);
       })
       .catch((error) => {
@@ -25,8 +24,6 @@ const Login = (props) => {
         message.error(error);
       });
   };
-
-  // 获取用户信息
   const handleUserInfo = (token) => {
     getUserInfo(token)
       .then((data) => {})
@@ -36,48 +33,43 @@ const Login = (props) => {
   };
 
   const handleSubmit = (event) => {
-    // 阻止事件的默认行为
     event.preventDefault();
-
-    // 对所有表单字段进行检验
     form.validateFields((err, values) => {
-      // 检验成功
       if (!err) {
         const { username, password } = values;
         handleLogin(username, password);
       } else {
-        console.log("检验失败!");
+        console.log("Жүйеге ену қате!");
       }
     });
   };
 
   if (token) {
-    return <Redirect to="/dashboard" />;
+    return <Redirect to="/classes" />;
   }
   return (
-    <DocumentTitle title={"用户登录"}>
+    <DocumentTitle title={"БЖБ"}>
       <div className="login-container">
         <Form onSubmit={handleSubmit} className="content">
           <div className="title">
-            <h2>用户登录</h2>
+            <h2>Жүйеге ену</h2>
           </div>
-          <Spin spinning={loading} tip="登录中...">
+          <Spin spinning={loading} tip="жүктеу...">
             <Form.Item>
               {getFieldDecorator("username", {
                 rules: [
                   {
                     required: true,
                     whitespace: true,
-                    message: "请输入用户名",
+                    message: "логин ді толтырыңыз",
                   },
                 ],
-                initialValue: "admin", // 初始值
               })(
                 <Input
                   prefix={
                     <Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />
                   }
-                  placeholder="用户名"
+                  placeholder="Логин"
                 />
               )}
             </Form.Item>
@@ -87,17 +79,16 @@ const Login = (props) => {
                   {
                     required: true,
                     whitespace: true,
-                    message: "请输入密码",
+                    message: "кілт сөзді толтырыңыз",
                   },
                 ],
-                initialValue: "123456", // 初始值
               })(
                 <Input
                   prefix={
                     <Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />
                   }
                   type="password"
-                  placeholder="密码"
+                  placeholder="Кілт сөз"
                 />
               )}
             </Form.Item>
@@ -107,16 +98,16 @@ const Login = (props) => {
                 htmlType="submit"
                 className="login-form-button"
               >
-                登录
+                Жүйеге ену
+              </Button>
+              <Button
+                onClick={()=> props.history.push("/signup")}
+                className="login-form-button"
+              >
+                Тіркелу
               </Button>
             </Form.Item>
-            <Form.Item>
-              <span>账号 : admin 密码 : 随便填</span>
-              <br />
-              <span>账号 : editor 密码 : 随便填</span>
-              <br />
-              <span>账号 : guest 密码 : 随便填</span>
-            </Form.Item>
+            
           </Spin>
         </Form>
       </div>

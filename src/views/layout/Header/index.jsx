@@ -1,10 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Icon, Menu, Dropdown, Modal, Layout, Avatar } from "antd";
+import { Icon, Menu, Dropdown, Modal, Layout } from "antd";
 import { Link } from "react-router-dom";
 import { logout, getUserInfo } from "@/store/actions";
-import FullScreen from "@/components/FullScreen";
-import Settings from "@/components/Settings";
 import Hamburger from "@/components/Hamburger";
 import BreadCrumb from "@/components/BreadCrumb";
 import "./index.less";
@@ -13,20 +11,18 @@ const { Header } = Layout;
 const LayoutHeader = (props) => {
   const {
     token,
-    avatar,
     sidebarCollapsed,
     logout,
     getUserInfo,
-    showSettings,
     fixedHeader,
   } = props;
   token && getUserInfo(token);
   const handleLogout = (token) => {
     Modal.confirm({
-      title: "注销",
-      content: "确定要退出系统吗?",
-      okText: "确定",
-      cancelText: "取消",
+      title: "Шығу",
+      content: "Сенімдісіз бе?",
+      okText: "иә",
+      cancelText: "жоқ",
       onOk: () => {
         logout(token);
       },
@@ -43,20 +39,11 @@ const LayoutHeader = (props) => {
   };
   const menu = (
     <Menu onClick={onClick}>
-      <Menu.Item key="dashboard">
-        <Link to="/dashboard">首页</Link>
-      </Menu.Item>
-      <Menu.Item key="project">
-        <a
-          target="_blank"
-          href="https://github.com/NLRX-WJC/react-antd-admin-template"
-          rel="noopener noreferrer"
-        >
-          项目地址
-        </a>
+      <Menu.Item key="classes">
+        <Link to="/classes">Сыныптар</Link>
       </Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="logout">注销</Menu.Item>
+      <Menu.Item key="logout">Шығу</Menu.Item>
     </Menu>
   );
   const computedStyle = () => {
@@ -80,8 +67,6 @@ const LayoutHeader = (props) => {
   };
   return (
     <>
-      {/* 这里是仿照antd pro的做法,如果固定header，
-      则header的定位变为fixed，此时需要一个定位为relative的header把原来的header位置撑起来 */}
       {fixedHeader ? <Header /> : null}
       <Header
         style={computedStyle()}
@@ -90,12 +75,10 @@ const LayoutHeader = (props) => {
         <Hamburger />
         <BreadCrumb />
         <div className="right-menu">
-          <FullScreen />
-          {showSettings ? <Settings /> : null}
           <div className="dropdown-wrap">
             <Dropdown overlay={menu}>
               <div>
-                <Avatar shape="square" size="medium" src={avatar} />
+                Admin
                 <Icon style={{ color: "rgba(0,0,0,.3)" }} type="caret-down" />
               </div>
             </Dropdown>
@@ -109,8 +92,7 @@ const LayoutHeader = (props) => {
 const mapStateToProps = (state) => {
   return {
     ...state.app,
-    ...state.user,
-    ...state.settings,
+    ...state.user
   };
 };
 export default connect(mapStateToProps, { logout, getUserInfo })(LayoutHeader);
